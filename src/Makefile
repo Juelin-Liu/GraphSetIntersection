@@ -1,5 +1,5 @@
 CXX = g++ -std=c++11
-CXXFLAGS = -O3 -Wall -Wno-unused-result -mavx2 -lmetis -pthread
+CXXFLAGS = -O3 -Wall -Wno-unused-result -mavx2 -pthread #-lmetis
 
 # SOURCES = $(shell find . | grep -e ".cpp" | grep -v "tc.cpp" | grep -v "reorder.cpp"| grep -v "mc.cpp")
 # OBJECTS = $(SOURCES:%.cpp=%.o)

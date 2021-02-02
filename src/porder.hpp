@@ -2,7 +2,7 @@
 #define _PORDER_H
 
 #include "util.hpp"
-#include "metis.h"
+// #include "metis.h"
 
 struct NbrNode
 {
@@ -32,10 +32,12 @@ public:
     EdgeVector greedy_naive();
     EdgeVector greedy_mheap();
     EdgeVector mloggapa_order(); // MLOGGAPA order using Recursive Graph Bisection algorithm
-    EdgeVector metis_order(); // METIS partitioning algorithm
+    // EdgeVector metis_order(); // METIS partitioning algorithm
     EdgeVector slashburn_order(); // SlashBurn algorithm
     EdgeVector bfsr_order(); // Recursive BFS order algorithm
     EdgeVector dfs_order(); // DFS order algorithm
+    EdgeVector deg(); // Degree order algorithm
+    EdgeVector deg_desc(); // Degree order algorithm
     void set_alpha_by_deg();
     void set_alpha(double *_a_out, double *_a_in);
     
@@ -61,7 +63,6 @@ private:
     void rcm_order();
     void bfs_order();
     void deg_desc_order();
-
     void dfs(int u, int* nid, int& cur_idx);
     // for Recursive Graph Bisection Order
     void graph_bisection(NodeWithGain *nodes, int *set_label, double *gain,

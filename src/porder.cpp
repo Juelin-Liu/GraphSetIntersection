@@ -291,7 +291,15 @@ EdgeVector POrder::greedy_naive()
     return edge_vec;
 }
 
+EdgeVector POrder::deg(){
+    deg_order();
+    return edge_vec;
+}
 
+EdgeVector POrder::deg_desc(){
+    deg_desc_order();
+    return edge_vec;
+}
 double POrder::comp_ratio()
 {
     build();
@@ -929,61 +937,61 @@ void POrder::graph_bisection2(NodeWithGain *nodes, int *set_label, double *gain,
     graph_bisection2(right_part, set_label, gain, right_num, cur_label);
 }
 
-EdgeVector POrder::metis_order()
-{
-    idx_t nvtxs = v_num;
-    idx_t ncon = 1;
-    idx_t *xadj = new idx_t[nvtxs + 1];
-    idx_t *part = new idx_t[nvtxs];
-    idx_t *adjncy = new idx_t[e_num];
-    idx_t nparts = v_num / 32;
-    idx_t objval = 0;
-    if (v_num % 32 != 0) nparts++;
+// EdgeVector POrder::metis_order()
+// {
+//     idx_t nvtxs = v_num;
+//     idx_t ncon = 1;
+//     idx_t *xadj = new idx_t[nvtxs + 1];
+//     idx_t *part = new idx_t[nvtxs];
+//     idx_t *adjncy = new idx_t[e_num];
+//     idx_t nparts = v_num / 32;
+//     idx_t objval = 0;
+//     if (v_num % 32 != 0) nparts++;
     
-    idx_t cur_pos = 0;
-    for (int i = 0; i < v_num; ++i) {
-        xadj[i] = cur_pos;
-        for (int j = 0; j < graph[i].out_deg; ++j) {
-            int v = outedge[graph[i].out_start + j];
-            adjncy[cur_pos++] = v;
-        }
-    }
-    xadj[v_num] = cur_pos;
+//     idx_t cur_pos = 0;
+//     for (int i = 0; i < v_num; ++i) {
+//         xadj[i] = cur_pos;
+//         for (int j = 0; j < graph[i].out_deg; ++j) {
+//             int v = outedge[graph[i].out_start + j];
+//             adjncy[cur_pos++] = v;
+//         }
+//     }
+//     xadj[v_num] = cur_pos;
     
-    int res = METIS_PartGraphRecursive(&nvtxs, &ncon, xadj, adjncy, 
-                NULL, NULL, NULL, &nparts, NULL, NULL,
-                NULL, &objval, part);
-    if (res == METIS_OK) printf("METIS work done successfully.\n");
-    else printf("METIS error!\n");
-    // int64_t max_part_idx = 0;
-    // for (int i = 0; i < v_num; ++i) max_part_idx = std::max(max_part_idx, part[i]);
-    // printf("max_part_idx=%ld\n", max_part_idx);
+//     int res = METIS_PartGraphRecursive(&nvtxs, &ncon, xadj, adjncy, 
+//                 NULL, NULL, NULL, &nparts, NULL, NULL,
+//                 NULL, &objval, part);
+//     if (res == METIS_OK) printf("METIS work done successfully.\n");
+//     else printf("METIS error!\n");
+//     // int64_t max_part_idx = 0;
+//     // for (int i = 0; i < v_num; ++i) max_part_idx = std::max(max_part_idx, part[i]);
+//     // printf("max_part_idx=%ld\n", max_part_idx);
 
-    memset(new_id, -1, sizeof(int) * v_num);
-    std::vector<int> vertex_temp;
-    for (int i = 0; i < v_num; ++i) vertex_temp.push_back(i);
-    sort(vertex_temp.begin(), vertex_temp.end(),
-        [&](const int&a, const int&b) -> bool {
-            if (part[a] == part[b]) return a < b;
-            else return part[a] < part[b];
-        });
-    for (int i = 0; i < v_num; ++i) new_id[vertex_temp[i]] = i;
+//     memset(new_id, -1, sizeof(int) * v_num);
+//     std::vector<int> vertex_temp;
+//     for (int i = 0; i < v_num; ++i) vertex_temp.push_back(i);
+//     sort(vertex_temp.begin(), vertex_temp.end(),
+//         [&](const int&a, const int&b) -> bool {
+//             if (part[a] == part[b]) return a < b;
+//             else return part[a] < part[b];
+//         });
+//     for (int i = 0; i < v_num; ++i) new_id[vertex_temp[i]] = i;
 
-    delete []xadj;
-    delete []part;
-    delete []adjncy;
+//     delete []xadj;
+//     delete []part;
+//     delete []adjncy;
 
-    // update org2newid.
-    for (auto& idx : org2newid) idx = new_id[idx];
+//     // update org2newid.
+//     for (auto& idx : org2newid) idx = new_id[idx];
 
-    // update edge_vec.
-    for (auto& e : edge_vec) {
-        e.first = new_id[e.first];
-        e.second = new_id[e.second];
-    }  
+//     // update edge_vec.
+//     for (auto& e : edge_vec) {
+//         e.first = new_id[e.first];
+//         e.second = new_id[e.second];
+//     }  
 
-    return edge_vec;
-}
+//     return edge_vec;
+// }
 
 struct HubsetHeapNode
 {

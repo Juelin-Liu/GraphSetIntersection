@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
         porder.comp_ratio();
         return 0;
     }
+    printf("order_algo=%s graph_file=%s\n", order_option.c_str(), graph_name.c_str());
         
     struct timeval time_start;
     struct timeval time_end;
@@ -53,10 +54,10 @@ int main(int argc, char* argv[])
         reordered_graph_file_path = graph_name + "_MLOGGAPAorder.txt";
         reordered_newid_file_path = graph_name + "_MLOGGAPAorder_newID.txt";
         new_edge_vec = porder.mloggapa_order();       
-    } else if (order_option == "metis") {
-        reordered_graph_file_path = graph_name + "_METISorder.txt";
-        reordered_newid_file_path = graph_name + "_METIS_newID.txt";
-        new_edge_vec = porder.metis_order();
+    // } else if (order_option == "metis") {
+    //     reordered_graph_file_path = graph_name + "_METISorder.txt";
+    //     reordered_newid_file_path = graph_name + "_METIS_newID.txt";
+    //     new_edge_vec = porder.metis_order();
     } else if (order_option == "slashburn") {
         reordered_graph_file_path = graph_name + "_SBorder.txt";
         reordered_newid_file_path = graph_name + "_SB_newID.txt";
@@ -69,14 +70,23 @@ int main(int argc, char* argv[])
         reordered_graph_file_path = graph_name + "_DFSorder.txt";
         reordered_newid_file_path = graph_name + "_DFS_newID.txt";
         new_edge_vec = porder.dfs_order();        
-    } else {
+    } else if (order_option == "gro"){
         order_option = "gro";
         reordered_graph_file_path = graph_name + "_GRO.txt";
         reordered_newid_file_path = graph_name + "_GRO_newID.txt";
         new_edge_vec = porder.greedy_mheap(); 
+    } else if (order_option == "degdesc"){
+        order_option = "degdesc";
+        reordered_graph_file_path = graph_name + "_DEGDESC.txt";
+        reordered_newid_file_path = graph_name + "_DEGDESC_newID.txt";
+        new_edge_vec = porder.deg_desc();
+    } else if (order_option == "deg"){
+        order_option = "deg";
+        reordered_graph_file_path = graph_name + "_DEG.txt";
+        reordered_newid_file_path = graph_name + "_DEG_newID.txt";
+        new_edge_vec = porder.deg();
     }
 
-    printf("order_algo=%s graph_file=%s\n", order_option.c_str(), graph_name.c_str());
     gettimeofday(&time_end, NULL);
     double reorder_time = (time_end.tv_sec - time_start.tv_sec) * 1000.0 + (time_end.tv_usec - time_start.tv_usec) / 1000.0;    
     if (reorder_time > 10000.0) printf("reorder_time=%.3fs\n", reorder_time / 1000.0);
@@ -89,7 +99,7 @@ int main(int argc, char* argv[])
     save_newid(reordered_newid_file_path, porder.org2newid);
     gettimeofday(&time_end, NULL);
     double write_time = (time_end.tv_sec - time_start.tv_sec) * 1000.0 + (time_end.tv_usec - time_start.tv_usec) / 1000.0;
-    printf("write_time=%.3fms\n", write_time);
+    printf("write_time=%.3fms\n\n", write_time);
 
     return 0;
 }
