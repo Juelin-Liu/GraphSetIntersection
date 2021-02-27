@@ -27,6 +27,7 @@ public:
     long long e_num;
     int p_num; // pack num: ceil(v_num/PACK_WIDTH).
     std::vector<int> org2newid; // org_id: i --> new_id: org2newid[i].
+    std::vector<int> ord2org; // ord: i --> org_id: ord2org[i].
     void load_org_graph(EdgeVector _e_v);
     EdgeVector hybrid_bfsdeg();
     EdgeVector greedy_naive();
@@ -44,6 +45,8 @@ public:
     int leaf_node_count();
     std::vector<int> select_bignode(double deg_ratio);
     double comp_ratio();
+    int *old_id;
+    void build(); // build graph's adjacent lists by edge_vec/new_id.
 
     POrder();
     ~POrder();
@@ -53,11 +56,10 @@ private:
     std::vector<DVertex> graph;
     std::vector<int> outedge, inedge;
     std::vector<NbrNode> nbr;
-
+    int *org_id;
     int *new_id;
     double *alpha_out, *alpha_in;
 
-    void build(); // build graph's adjacent lists by edge_vec/new_id.
     void sort_nbr();
     void deg_order();
     void rcm_order();

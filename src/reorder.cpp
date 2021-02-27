@@ -13,6 +13,7 @@ int main(int argc, char* argv[])
     std::string graph_file_path(argv[1]);
     std::string graph_name = extract_filename(graph_file_path);
     std::string order_option = "gro";
+    printf("order_algo=%s graph_file=%s\n", order_option.c_str(), graph_name.c_str());
     std::string reordered_graph_file_path = graph_name + "_GRO.txt";
     std::string reordered_newid_file_path = graph_name + "_GRO_newID.txt";
     int i;
@@ -21,10 +22,10 @@ int main(int argc, char* argv[])
     else if ((i = arg_pos((char *)"-ratio", argc, argv)) > 0) {
         EdgeVector edge_vec = load_graph(graph_file_path);
         porder.load_org_graph(edge_vec);
+        porder.build();
         porder.comp_ratio();
         return 0;
     }
-    printf("order_algo=%s graph_file=%s\n", order_option.c_str(), graph_name.c_str());
         
     struct timeval time_start;
     struct timeval time_end;
@@ -37,6 +38,7 @@ int main(int argc, char* argv[])
 
     gettimeofday(&time_start, NULL);
     porder.load_org_graph(edge_vec);
+    porder.build();
     gettimeofday(&time_end, NULL);
     double build_time = (time_end.tv_sec - time_start.tv_sec) * 1000.0 + (time_end.tv_usec - time_start.tv_usec) / 1000.0;
     printf("build_time=%.3fms\n", build_time);
@@ -96,7 +98,7 @@ int main(int argc, char* argv[])
 
     gettimeofday(&time_start, NULL);
     save_graph(reordered_graph_file_path, new_edge_vec);
-    save_newid(reordered_newid_file_path, porder.org2newid);
+    save_newid(reordered_newid_file_path, porder.org2newid, porder.ord2org);
     gettimeofday(&time_end, NULL);
     double write_time = (time_end.tv_sec - time_start.tv_sec) * 1000.0 + (time_end.tv_usec - time_start.tv_usec) / 1000.0;
     printf("write_time=%.3fms\n\n", write_time);

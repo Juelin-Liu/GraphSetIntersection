@@ -8,12 +8,13 @@
 #include "modified_heap.hpp"
 #include "linkedlist_heap.hpp"
 #include "doublelinked_list.hpp"
-
+bool isBuild = false;
 
 POrder::POrder()
 {
     v_num = 0; e_num = 0; p_num = 0;
     new_id = NULL;
+    org_id = NULL;
     alpha_out = NULL;
     alpha_in = NULL;
 }
@@ -21,6 +22,7 @@ POrder::POrder()
 POrder::~POrder()
 {
     if (new_id != NULL) delete []new_id;
+    if (org_id != NULL) delete []new_id;
     if (alpha_out != NULL) delete []alpha_out;
     if (alpha_in != NULL) delete []alpha_in;
 }
@@ -28,7 +30,6 @@ POrder::~POrder()
 void POrder::load_org_graph(EdgeVector _e_v)
 {
     this->edge_vec = _e_v;
-
     e_num = (long long)edge_vec.size();
     v_num = 0;
     for (const auto& e : edge_vec) {
@@ -38,29 +39,39 @@ void POrder::load_org_graph(EdgeVector _e_v)
     v_num++;
     p_num = v_num / PACK_WIDTH;
     if (v_num % PACK_WIDTH != 0) p_num++;
-
+    old_id = new int[v_num];
     new_id = new int[v_num];
     alpha_out = new double[v_num];
     alpha_in = new double[v_num];
     org2newid.resize(v_num);
+    ord2org.resize(v_num);
     for (int i = 0; i < v_num; ++i) org2newid[i] = i;
     graph.resize(v_num);
     outedge.resize(e_num);
     inedge.resize(e_num);
-
     build();
 }
 
 void POrder::build()
 {
+    if (isBuild){
+        return;
+    }
+    bool old_id_mask[v_num];
+    for (int i = 0; i < v_num; i++){
+        old_id_mask[i] = false;
+    }
     std::sort(edge_vec.begin(), edge_vec.end(), edge_idpair_cmp);
     for (auto& dv : graph) {
         dv.out_deg = 0;
         dv.in_deg = 0;
     }
+
     for (const auto& e : edge_vec) {
         graph[e.first].out_deg++;
         graph[e.second].in_deg++;
+        old_id_mask[e.first] = true;
+        old_id_mask[e.second] = true;
     }
     graph[0].out_start = 0;
     graph[0].in_start = 0;
@@ -77,6 +88,20 @@ void POrder::build()
         inedge[inpos[e.second]] = e.first;
         inpos[e.second]++;
     }
+    int cnt = 0;
+    for (int i = 0; i < v_num; i++){
+        if(old_id_mask[i]){
+            ord2org[cnt] = i;
+            old_id[i] = cnt++;
+        }
+    }
+    ord2org.resize(cnt);
+    std::cout << "total_vertex="<<cnt<<std::endl;
+    std::cout << "ord2org_size="<<ord2org.size()<<std::endl;
+    for (int i = 0; i < 100; i++){
+        std::cout << i << "th vertex: " << ord2org[i] << "\n";
+    }
+    isBuild = true;
 }
 
 int POrder::leaf_node_count()
@@ -453,8 +478,7 @@ void POrder::sort_nbr()
 void POrder::deg_order()
 {
     memset(new_id, -1, sizeof(int) * v_num);
-    std::vector<int> vertex_temp;
-    for (int i = 0; i < v_num; ++i) vertex_temp.push_back(i);
+    std::vector<int> vertex_temp{ord2org};
     sort(vertex_temp.begin(), vertex_temp.end(),
         [&](const int& a, const int& b) -> bool {
             int deg_a = graph[a].out_deg + graph[a].in_deg;
@@ -467,7 +491,11 @@ void POrder::deg_order()
     for (auto u : vertex_temp) new_id[u] = cur_idx++;
 
     // update org2newid.
-    for (auto& idx : org2newid) idx = new_id[idx];
+    for (int i =0; i < ord2org.size(); i++) 
+    {
+        int old_id = ord2org[i];
+        org2newid[i] = new_id[old_id];
+    }
 
     // update edge_vec.
     for (auto& e : edge_vec) {

@@ -45,9 +45,10 @@ struct PackNode
 
 struct UVertex
 {
-    int start, deg;
-    UVertex(): start(-1), deg(0) {};
-    UVertex(int _s, int _d): start(_s), deg(_d) {};
+    int start, deg, offset; // offset stores the number of neighbors in the adjacency list with smaller ID
+    UVertex(): start(-1), deg(0), offset(0) {};
+    UVertex(int _s, int _d): start(_s), deg(_d), offset(0) {};
+    UVertex(int _s, int _d, int _o): start(_s), deg(_d), offset(_o) {};
 };
 
 struct DVertex
@@ -69,5 +70,6 @@ EdgeVector load_graph(const std::string path);
 void save_graph(const std::string path, const EdgeVector& edge_vec);
 std::vector<int> load_vertex_order(const std::string path);
 void save_newid(const std::string path, std::vector<int> org2newid);
+void save_newid(const std::string path, std::vector<int> org2newid, std::vector<int> ord2org);
 bool edge_idpair_cmp(const Edge& a, const Edge& b);
 #endif
